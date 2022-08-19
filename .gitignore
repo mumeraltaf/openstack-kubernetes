@@ -1,0 +1,13 @@
+.idea
+.terraform
+
+
+
+*.tfstate
+*.tfstate.backup
+*.terraform.lock.hcl
+
+
+cluster/secret
+
+.DS_Store
