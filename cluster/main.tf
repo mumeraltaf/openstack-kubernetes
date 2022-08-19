@@ -3,13 +3,13 @@ terraform {
   required_providers {
     openstack = {
       source  = "terraform-provider-openstack/openstack"
-      version = "~> 1.47.0"
+      version = "~> 1.48.0"
     }
   }
 }
 
-resource "openstack_compute_keypair_v2" "cluster_key" {
-  name       = "cluster_key"
+resource "openstack_compute_keypair_v2" "kube_cluster_key" {
+  name       = "kube_cluster_key"
   public_key = file(format("%s%s.pub", var.secrets_directory, var.ssh_key_file))
 }
 
@@ -22,7 +22,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
   docker_volume_size    = 0
   external_network_id   = "melbourne"
   flavor                = "m3.small"
-  floating_ip_enabled   = true
+  floating_ip_enabled   = false
   image                 = "fedora-coreos-35"
   master_flavor         = "m3.small"
   master_lb_enabled     = true
@@ -65,11 +65,11 @@ resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
   cluster_template_id = openstack_containerinfra_clustertemplate_v1.umer_cluster_template.id
   master_count        = 1
   node_count          = 2
-  keypair             = openstack_compute_keypair_v2.cluster_key.name
+  keypair             = openstack_compute_keypair_v2.kube_cluster_key.name
 }
 
 
 resource "local_sensitive_file" "config" {
   content  = tostring(openstack_containerinfra_cluster_v1.umer_cluster.kubeconfig.raw_config)
-  filename = "secret/config"
+  filename = "${path.module}/secret/config"
 }

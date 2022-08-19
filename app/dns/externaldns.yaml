@@ -73,6 +73,6 @@ spec:
             - name: OS_IDENTITY_API_VERSION
               value: "3"
             - name: OS_APPLICATION_CREDENTIAL_ID
-              value: <add>
+              value: $OS_APPLICATION_CREDENTIAL_ID
             - name: OS_APPLICATION_CREDENTIAL_SECRET
-              value: <add>
+              value: $OS_APPLICATION_CREDENTIAL_SECRET
