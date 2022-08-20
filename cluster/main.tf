@@ -19,18 +19,18 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
   coe                   = "kubernetes"
   dns_nameserver        = "8.8.8.8"
   docker_storage_driver = "overlay2"
-  docker_volume_size    = 0
+  docker_volume_size    = 20
   external_network_id   = "melbourne"
-  flavor                = "m3.small"
-  floating_ip_enabled   = false
+  flavor                = "c3.xxlarge"
+  floating_ip_enabled   = true
   image                 = "fedora-coreos-35"
-  master_flavor         = "m3.small"
+  master_flavor         = "m3.medium"
   master_lb_enabled     = true
   name                  = "umer_cluster_template"
   network_driver        = "flannel"
   no_proxy              = ""
   region                = "Melbourne"
-  registry_enabled      = false
+  registry_enabled      = true
   server_type           = "vm"
   tls_disabled          = false
   volume_driver         = "cinder"
@@ -63,8 +63,8 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
 resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
   name                = "umer_cluster"
   cluster_template_id = openstack_containerinfra_clustertemplate_v1.umer_cluster_template.id
-  master_count        = 1
-  node_count          = 2
+  master_count        = 2
+  node_count          = 3
   keypair             = openstack_compute_keypair_v2.kube_cluster_key.name
 }
 
