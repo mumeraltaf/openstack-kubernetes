@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   dnsNames:
-    - umer2.aurin-prod.cloud.edu.au
+    - umer-cluster2.aurin-prod.cloud.edu.au
   secretName: example-app-tls
   issuerRef:
     name: letsencrypt
