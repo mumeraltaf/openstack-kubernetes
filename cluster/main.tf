@@ -19,7 +19,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
   coe                   = "kubernetes"
   dns_nameserver        = "8.8.8.8"
   docker_storage_driver = "overlay2"
-  docker_volume_size    = 20
+  docker_volume_size    = 0
   external_network_id   = "melbourne"
   flavor                = "c3.xxlarge"
   floating_ip_enabled   = true
@@ -30,7 +30,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
   network_driver        = "flannel"
   no_proxy              = ""
   region                = "Melbourne"
-  registry_enabled      = true
+  registry_enabled      = false
   server_type           = "vm"
   tls_disabled          = false
   volume_driver         = "cinder"
@@ -57,14 +57,18 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
     k8s_keystone_auth_tag         = "v1.23.4"
     kube_tag                      = "v1.23.8"
     master_lb_floating_ip_enabled = "true"
+    # the default full list as mentioned here https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
+    # admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds, LimitRanger, MutatingAdmissionWebhook, NamespaceLifecycle, PersistentVolumeClaimResize, PodSecurity, Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
+    # Removed PodSecurity from the default list, cert-manager was not able to work with it. More investigation needed here.
+    admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds,LimitRanger,MutatingAdmissionWebhook,NamespaceLifecycle,PersistentVolumeClaimResize,Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
   }
 }
 
 resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
   name                = "umer_cluster"
   cluster_template_id = openstack_containerinfra_clustertemplate_v1.umer_cluster_template.id
-  master_count        = 2
-  node_count          = 3
+  master_count        = 1
+  node_count          = 2
   keypair             = openstack_compute_keypair_v2.kube_cluster_key.name
 }
 

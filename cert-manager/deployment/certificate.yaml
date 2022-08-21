@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-app
+  namespace: default
+spec:
+  dnsNames:
+    - umer2.aurin-prod.cloud.edu.au
+  secretName: example-app-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
