@@ -32,7 +32,7 @@ resource "kubernetes_persistent_volume_claim_v1" "kube-storage-claim" {
     access_modes = ["ReadWriteOnce"]
     resources {
       requests = {
-        storage = "100Gi"
+        storage = var.volume_claim_size
       }
     }
   }

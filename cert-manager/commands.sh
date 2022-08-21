@@ -1,5 +1,3 @@
-k create ns cert-manager
-
 #source https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
 # Updated:
 # Deployment > name: cert-manager-webhook > template > spec > hostNetwork: true (ADDED)
@@ -23,8 +21,12 @@ k apply -f cert-issuer-nginx-ingress.yaml
 
 # cd deployment
 
+k apply -f deployment.yaml
+
 k apply -f service.yaml
 
 # k port-forward svc/example-service 5000:80
  k apply -f certificate.yaml
 
+
+k apply -f ingress.yaml
