@@ -57,8 +57,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
     k8s_keystone_auth_tag         = "v1.23.4"
     kube_tag                      = "v1.23.8"
     master_lb_floating_ip_enabled = "true"
-    influx_grafana_dashboard_enabled = "true"
-    grafana_admin_passwd = "passone"
+    influx_grafana_dashboard_enabled = "false"
     # the default full list as mentioned here https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
     # admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds, LimitRanger, MutatingAdmissionWebhook, NamespaceLifecycle, PersistentVolumeClaimResize, PodSecurity, Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
     # Removed PodSecurity from the default list, cert-manager was not able to work with it. More investigation needed here.
