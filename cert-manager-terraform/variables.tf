@@ -7,5 +7,5 @@ variable "kube_config" {
 variable "service_domain_name" {
   type        = string
   description = "Domain name in already existing DNS Zone on OpenStack"
-  default = "cluster-nginx.aurin-prod.cloud.edu.au"
+  default = "umer-cluster-ssl.aurin-prod.cloud.edu.au"
 }

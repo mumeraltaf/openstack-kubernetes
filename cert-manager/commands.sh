@@ -26,7 +26,7 @@ k apply -f deployment.yaml
 k apply -f service.yaml
 
 # k port-forward svc/example-service 5000:80
- k apply -f certificate.yaml
+k apply -f certificate.yaml
 
 
 k apply -f ingress.yaml
