@@ -1,3 +1,4 @@
+# Setup the OpenStack provider
 terraform {
   required_version = ">= 0.14.0"
   required_providers {
@@ -8,12 +9,13 @@ terraform {
   }
 }
 
+# Create the key pair for the entire cluster on OpenStack
 resource "openstack_compute_keypair_v2" "kube_cluster_key" {
   name       = "kube_cluster_key"
   public_key = file(format("%s%s.pub", var.secrets_directory, var.ssh_key_file))
 }
 
-
+# Create a custom Cluster Template for our Kubernetes Cluster
 resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
   cluster_distro        = "fedora-coreos"
   coe                   = "kubernetes"
@@ -65,6 +67,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
   }
 }
 
+# Create the Kubernetes Cluster
 resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
   name                = "umer_cluster"
   cluster_template_id = openstack_containerinfra_clustertemplate_v1.umer_cluster_template.id
@@ -73,16 +76,16 @@ resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
   keypair             = openstack_compute_keypair_v2.kube_cluster_key.name
 }
 
-
+# Export and save the KUBECONFIG file at the specified location
 resource "local_sensitive_file" "config" {
   content  = tostring(openstack_containerinfra_cluster_v1.umer_cluster.kubeconfig.raw_config)
   filename = "${path.module}/secret/config"
 }
 
+# Install cert-manager CRDs into the cluster, comment out if doing manual install of cert-manager
 resource "null_resource" "install_cert_manager_crds" {
   depends_on = [local_sensitive_file.config]
   provisioner "local-exec" {
-    # install cert-manager CRDs into the cluster
     command = "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml"
     environment = {
       KUBECONFIG = "${path.module}/secret/config"
