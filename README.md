@@ -3,12 +3,11 @@
 A playpen repo for exploring OpenStack Magnum Kubernetes Cluster. I will keep adding features as I go along learning more stuff.
 
 # Current Features:
-* Provision using Terraform
-* Provision from a custom Magnum Cluster Template
+* Provision using Terraform from a custom Magnum Cluster Template
 * Provision Persistent Storage on OpenStack Volume
-* Install [cert-manager](https://cert-manager.io/) for X.509 certificate management
-* Install internal Nginx Ingress Controller
-* Deploy an example `HelloWorld` app with valid SSL certificate
+* Install [cert-manager](https://cert-manager.io/) for X.509 certificate management using Terraform or manually
+* Install internal Nginx Ingress Controller using Terraform or manually
+* Deploy an example `HelloWorld` app with valid SSL certificate using Terraform or manually
 
 Prerequisites:
 * Have appropriate OpenStack allocation (Clusters / Networks / FloatingIPs etc)
@@ -49,11 +48,48 @@ After this complete a Volume will be provisioned and be available to be used by 
 # Setup cert-manager
 We will set up our cluster with [cert-manager](https://cert-manager.io/), which will automatically manage X.509 certificates in our cluster.
 
+## Installation Methods
+There are multiple ways to install [cert-manager](https://cert-manager.io/) into our cluster here are few options:
+* Manual install using yaml files
+* Use Helm charts for cert-manager and nginx-ingress installation
+* Use Kubernetes and Helm Terraform providers to setup cert-manager
+
+
+### Use Kubernetes and Helm Terraform providers to setup cert-manager and nginx-ingress-controller
+Terraform allows us to easily declare our installation in a .tf file, without need of multiple yaml files.
+
+* Install `cert-manager` K8s CRDs (Custom Resource Definitions), these CRDs have to be injected into the cluster before we can install the and user `cert-manager` properly. This has been done as final step in cluster creation Terraform script (as described above) i.e. `/cluster/main.tf`
+```terraform
+resource "null_resource" "install_cert_manager_crds" {
+  depends_on = [local_sensitive_file.config]
+  provisioner "local-exec" {
+    # install cert-manager CRDs into the cluster
+    command = "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml"
+    environment = {
+      KUBECONFIG = "${path.module}/secret/config"
+    }
+  }
+}
+```
+Note that the version of CRDs (vX.Y.Z) is kept same for this and next step.
+* Deploy and setup `cert-manager` and `nginx-ingress-controller`
+* Please set the appropriate values for `kube_config` and `service_domain_name` in `/cert-manager-terraform`. Service domain name will be the doamin name used for the `nginx-ingress-contorller`, the TLS certificate and the example service exposed. Make sure that this domain belongs to a DNS zone that you already have in your OpenStack allocation.
+```shell
+> cd /cert-manager-terraform
+> terraform init
+> terraform apply
+```
+After this apply completes wait for 1-2 mins and then navigate to the `service_domain_name`. The example app should be deployed and available over SSL. If you get not valid certificate warning, just wait for 5-10 mins for `cert-manager` to complete the certificate aqusition from lets-encrypt.
+
+
+
+### Manual install using yaml files
+
 Note: Certain modifications to the default Kubernates yaml resources were needed to make things work on my OpenStack provider. These changes and source of original yaml files are also mentioned below:
 
 * Install cert-manager using yaml file
 ```shell
-> cd cert-manager
+> cd cert-manager-manual
 # source https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
 # Updated:
 # Deployment > name: cert-manager-webhook > template > spec > hostNetwork: true (ADDED)
@@ -77,16 +113,16 @@ Note: Certain modifications to the default Kubernates yaml resources were needed
 > k -n ingress-nginx get svc
 ```
 
-## Register A record with OpenStack DNS provider (Designate) with required `HostName`
+#### Register A record with OpenStack DNS provider (Designate) with required `HostName`
 * `HostName` can be any valid hostname, example services given are configured for name like `umer-cluster2.aurin-prod.cloud.edu.au`. Update this name to what you want in following files:
-  * `cert-manager/deployment/certificate`
-  * `cert-manager/deployment/ingress`
+  * `cert-manager-manual/deployment/certificate`
+  * `cert-manager-manual/deployment/ingress`
 * After status of Ingress External IP is updated from `Pending` to an actual IP address, add this address as an A record on the OpenStack DNS provider (Designate) with the required `HostName`. We may also be able to use Terraform to automate this step in future.
 
-## Get a LetsEncrypt certificate and start a `HelloWorld` example Service
+#### Get a LetsEncrypt certificate and start a `HelloWorld` example Service
 * Now we can get `cert-manager` to request and manage the SSL certificate. The certificate will be named using a key and be saved in Kubernetes secret store. It will be renewed automatically by `cert-manager` before it expires.
 ```shell
-> cd cert-manager/deployment
+> cd cert-manager-manual/deployment
 # Create the Kubernetes deployment for example app
 > k apply -f deployment.yaml
 # Create the Kubernetes service for example app
