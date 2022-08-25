@@ -33,6 +33,7 @@ resource "helm_release" "nginx-ingress" {
     name  = "externalTrafficPolicy"
     value = "Cluster"
   }
+  version = "9.3.0"
 }
 
 resource "kubernetes_namespace" "cm" {
@@ -187,6 +188,7 @@ resource "kubernetes_ingress_v1" "my-app" {
     name = "my-app"
     annotations = {
       "kubernetes.io/ingress.class" = "nginx"
+#      "cert-manager.io/cluster-issuer" = "letsencrypt-issuer"
     }
   }
   spec {

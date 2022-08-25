@@ -21,22 +21,23 @@ resource "kubernetes_storage_class_v1" "kube_storage_class" {
   }
   storage_provisioner = "cinder.csi.openstack.org"
 }
-
-
-resource "kubernetes_persistent_volume_claim_v1" "kube-storage-claim" {
-  metadata {
-    name = "kube-storage-claim"
-    namespace = "default"
-  }
-  spec {
-    access_modes = ["ReadWriteOnce"]
-    resources {
-      requests = {
-        storage = var.volume_claim_size
-      }
-    }
-  }
-  timeouts {
-    create = "30m"
-  }
-}
+#
+#
+#resource "kubernetes_persistent_volume_claim_v1" "kube-storage-claim" {
+#  metadata {
+#    name = "kube-storage-claim"
+#    namespace = "default"
+#  }
+#  spec {
+#    storage_class_name = "default"
+#    access_modes = ["ReadWriteOnce"]
+#    resources {
+#      requests = {
+#        storage = var.volume_claim_size
+#      }
+#    }
+#  }
+#  timeouts {
+#    create = "30m"
+#  }
+#}
