@@ -4,8 +4,8 @@ variable "kube_config" {
   default = "/Users/maalt/work/playpen/openstack-kubernetes/cluster/secret/config"
 }
 
-variable "service_domain_name" {
+variable "cluster_url" {
   type        = string
   description = "Domain name in already existing DNS Zone on OpenStack"
-  default = "umernewcluster2.aurin-prod.cloud.edu.au"
+  default = "kcluster2.aurin-prod.cloud.edu.au"
 }

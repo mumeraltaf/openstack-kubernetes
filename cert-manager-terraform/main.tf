@@ -1,3 +1,4 @@
+# Setup all required providers
 terraform {
   required_providers {
     kubernetes = {
@@ -23,6 +24,10 @@ provider "helm" {
     config_path = var.kube_config
   }
 }
+
+##############################
+
+# Install nginx-ingress-controller
 resource "helm_release" "nginx-ingress" {
   name       = "nginx-ingress-controller"
 
@@ -36,13 +41,15 @@ resource "helm_release" "nginx-ingress" {
   version = "9.3.0"
 }
 
+
+# Create cert-manager namespace
 resource "kubernetes_namespace" "cm" {
   metadata {
     name = "cert-manager"
   }
 }
 
-
+# Install cert-manager
 resource "helm_release" "cert-manager" {
   create_namespace = false
   namespace = "cert-manager"
@@ -61,7 +68,7 @@ data "kubernetes_service_v1" "load_balancer_nginx" {
   }
 }
 
-
+# Create the letsencrypt cluster issuer
 resource "kubernetes_manifest" "letsencrypt-issuer" {
   depends_on = [helm_release.cert-manager]
   manifest = {
@@ -95,6 +102,8 @@ resource "kubernetes_manifest" "letsencrypt-issuer" {
 
 
 
+##################
+# Your APP/s
 resource "kubernetes_deployment_v1" "my-deployment" {
   metadata {
     name = "my-app"
@@ -151,30 +160,9 @@ resource "kubernetes_service_v1" "my-service" {
   }
 }
 
-resource "kubernetes_manifest" "letsencrypt-certificate" {
-  depends_on = [helm_release.cert-manager]
-  manifest = {
-    "apiVersion" = "cert-manager.io/v1"
-    "kind"       = "Certificate"
-    "metadata" = {
-      "name"      = "my-app"
-      "namespace" = "default"
-    }
-    "spec" = {
-      "dnsNames" = ["${var.service_domain_name}"]
-      "secretName" = "my-app-tls"
-      "issuerRef" = {
-        "name" = "letsencrypt-issuer"
-        "kind" = "ClusterIssuer"
-      }
-    }
-  }
-}
-
-
 resource "openstack_dns_recordset_v2" "domain" {
   depends_on = [helm_release.nginx-ingress, data.kubernetes_service_v1.load_balancer_nginx]
-  name    = format("%s%s",var.service_domain_name,".")
+  name    = format("%s%s%s","*.",var.cluster_url,".")
   zone_id = "92b7daf1-6669-41e9-8d80-14f6cf644703"
   ttl = 30
   type = "A"
@@ -188,16 +176,19 @@ resource "kubernetes_ingress_v1" "my-app" {
     name = "my-app"
     annotations = {
       "kubernetes.io/ingress.class" = "nginx"
-#      "cert-manager.io/cluster-issuer" = "letsencrypt-issuer"
+      "cert-manager.io/cluster-issuer" = "letsencrypt-issuer"
     }
   }
   spec {
     tls {
       secret_name = "my-app-tls"
-      hosts = [var.service_domain_name]
+      hosts = [
+        format("%s%s","service1.",var.cluster_url),
+        format("%s%s","service2.",var.cluster_url)
+      ]
     }
     rule {
-      host = var.service_domain_name
+      host = format("%s%s","service1.",var.cluster_url)
       http {
         path {
           path = "/"
@@ -206,6 +197,22 @@ resource "kubernetes_ingress_v1" "my-app" {
               name = "my-service"
               port {
                   number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+    rule {
+      host = format("%s%s","service2.",var.cluster_url)
+      http {
+        path {
+          path = "/"
+          backend {
+            service {
+              name = "my-service"
+              port {
+                number = 80
               }
             }
           }
