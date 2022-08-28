@@ -29,17 +29,23 @@ see [https://docs.openstack.org/magnum/latest/user/#clustertemplate](https://doc
 ```
 Wait for 5-15 minutes for cluster to be deployed
 
-## Cluster Config
+## Cluster KUBECONFIG
 
 After the cluster is provisioned the `kubeconfig` file will be saved at `./cluster/secret/config`. Load this config into env variable:
 ```shell
 > export KUBECONFIG=<PATH_TO_REPO>/cluster/secret/config
 ```
 
-## Provision Storage
-Configure the path to `kubeconfig` and size of OpenStack volume to provision in the `./cluster/provision/variables.tf` file. Then:
+## Configure Cluster
+
+After the cluster is created we will need to configure it for our use cases like:
+
+* Set up the `cinder` `StorageClass` as default, for all `PersistentStorageClaims` in the cluster
+* Install CRDs for utility packages like `cert-manger` and `argo-cd` or more.
+
+To configure cluster, check/update the path to `kubeconfig` in the `./cluster/provision/variables.tf` file. Then:
 ```shell
-> cd cluster/provision
+> cd cluster/configure
 > terraform init
 > terraform apply
 ```
@@ -56,32 +62,12 @@ There are multiple ways to install [cert-manager](https://cert-manager.io/) into
 
 
 ### Use Kubernetes and Helm Terraform providers to setup cert-manager and nginx-ingress-controller
-Terraform allows us to easily declare our installation in a .tf file, without need of multiple yaml files.
 
-* Install `cert-manager` K8s CRDs (Custom Resource Definitions), these CRDs have to be injected into the cluster before we can install the and user `cert-manager` properly. This has been done as final step in cluster creation Terraform script (as described above) i.e. `/cluster/main.tf`
-```terraform
-resource "null_resource" "install_cert_manager_crds" {
-  depends_on = [local_sensitive_file.config]
-  provisioner "local-exec" {
-    # install cert-manager CRDs into the cluster
-    command = "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml"
-    environment = {
-      KUBECONFIG = "${path.module}/secret/config"
-    }
-  }
-}
-```
-Note that the version of CRDs (vX.Y.Z) is kept same for this and next step.
-* Deploy and setup `cert-manager` and `nginx-ingress-controller`
-* Please set the appropriate values for `kube_config` and `service_domain_name` in `/cert-manager-terraform`. Service domain name will be the doamin name used for the `nginx-ingress-contorller`, the TLS certificate and the example service exposed. Make sure that this domain belongs to a DNS zone that you already have in your OpenStack allocation.
 ```shell
-> cd /cert-manager-terraform
+> cd cert-manager-terraform
 > terraform init
 > terraform apply
 ```
-After this apply completes wait for 1-2 mins and then navigate to the `service_domain_name`. The example app should be deployed and available over SSL. If you get not valid certificate warning, just wait for 5-10 mins for `cert-manager` to complete the certificate aqusition from lets-encrypt.
-
-
 
 ### Manual install using yaml files
 

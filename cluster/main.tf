@@ -81,14 +81,3 @@ resource "local_sensitive_file" "config" {
   content  = tostring(openstack_containerinfra_cluster_v1.umer_cluster.kubeconfig.raw_config)
   filename = "${path.module}/secret/config"
 }
-
-# Install cert-manager CRDs into the cluster, comment out if doing manual install of cert-manager
-resource "null_resource" "install_cert_manager_crds" {
-  depends_on = [local_sensitive_file.config]
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml"
-    environment = {
-      KUBECONFIG = "${path.module}/secret/config"
-    }
-  }
-}
