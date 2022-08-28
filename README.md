@@ -8,7 +8,7 @@ A playpen repo for exploring OpenStack Magnum Kubernetes Cluster. I will keep ad
 * Install [cert-manager](https://cert-manager.io/) for X.509 certificate management using Terraform or manually
 * Install internal Nginx Ingress Controller using Terraform or manually
 * Deploy an example `HelloWorld` app with valid SSL certificate using Terraform or manually
-
+* [Argo CD](https://argo-cd.readthedocs.io/en/stable/) (continuous delivery) for the cluster (see `/argo-cd/argo/commands.sh` for installation instructions)
 Prerequisites:
 * Have appropriate OpenStack allocation (Clusters / Networks / FloatingIPs etc)
 * Be authenticated with OpenStack using Application/Personal credentials file
