@@ -68,6 +68,16 @@ data "kubernetes_service_v1" "load_balancer_nginx" {
   }
 }
 
+resource "openstack_dns_recordset_v2" "domain" {
+  depends_on = [helm_release.nginx-ingress, data.kubernetes_service_v1.load_balancer_nginx]
+  name    = format("%s%s%s","*.",var.cluster_url,".")
+  zone_id = "92b7daf1-6669-41e9-8d80-14f6cf644703"
+  ttl = 30
+  type = "A"
+  records = [data.kubernetes_service_v1.load_balancer_nginx.status.0.load_balancer.0.ingress.0.ip]
+}
+
+
 # Create the letsencrypt cluster issuer
 resource "kubernetes_manifest" "letsencrypt-issuer" {
   depends_on = [helm_release.cert-manager]
@@ -100,124 +110,3 @@ resource "kubernetes_manifest" "letsencrypt-issuer" {
 }
 
 
-
-
-##################
-# Your APP/s
-resource "kubernetes_deployment_v1" "my-deployment" {
-  metadata {
-    name = "my-app"
-    labels = {
-      app = "my-myapp"
-    }
-  }
-  spec {
-    selector {
-      match_labels = {
-        app = "my-app"
-      }
-    }
-    replicas = "2"
-    template {
-      metadata {
-        labels = {
-          app = "my-app"
-        }
-      }
-      spec {
-        container {
-          name = "my-app"
-          image = "gcr.io/kuar-demo/kuard-amd64:1"
-          image_pull_policy = "Always"
-          port {
-            container_port = 8080
-          }
-        }
-      }
-    }
-  }
-}
-
-
-resource "kubernetes_service_v1" "my-service" {
-  metadata {
-    name = "my-service"
-    labels = {
-      app = "my-app"
-    }
-  }
-
-  spec {
-    selector = {
-      app = "my-app"
-    }
-    port {
-      port        = 80
-      target_port = 8080
-      protocol    = "TCP"
-    }
-    type = "ClusterIP"
-  }
-}
-
-resource "openstack_dns_recordset_v2" "domain" {
-  depends_on = [helm_release.nginx-ingress, data.kubernetes_service_v1.load_balancer_nginx]
-  name    = format("%s%s%s","*.",var.cluster_url,".")
-  zone_id = "92b7daf1-6669-41e9-8d80-14f6cf644703"
-  ttl = 30
-  type = "A"
-  records = [data.kubernetes_service_v1.load_balancer_nginx.status.0.load_balancer.0.ingress.0.ip]
-}
-
-
-resource "kubernetes_ingress_v1" "my-app" {
-  wait_for_load_balancer = true
-  metadata {
-    name = "my-app"
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-      "cert-manager.io/cluster-issuer" = "letsencrypt-issuer"
-    }
-  }
-  spec {
-    tls {
-      secret_name = "my-app-tls"
-      hosts = [
-        format("%s%s","service1.",var.cluster_url),
-        format("%s%s","service2.",var.cluster_url)
-      ]
-    }
-    rule {
-      host = format("%s%s","service1.",var.cluster_url)
-      http {
-        path {
-          path = "/"
-          backend {
-            service {
-              name = "my-service"
-              port {
-                  number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-    rule {
-      host = format("%s%s","service2.",var.cluster_url)
-      http {
-        path {
-          path = "/"
-          backend {
-            service {
-              name = "my-service"
-              port {
-                number = 80
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}

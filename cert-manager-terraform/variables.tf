@@ -7,5 +7,5 @@ variable "kube_config" {
 variable "cluster_url" {
   type        = string
   description = "Domain name in already existing DNS Zone on OpenStack"
-  default = "kcluster2.aurin-prod.cloud.edu.au"
+  default = "kcluster3.aurin-prod.cloud.edu.au"
 }
