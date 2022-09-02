@@ -23,30 +23,11 @@ resource "kubernetes_storage_class_v1" "kube_storage_class" {
 }
 
 
-# Install cert-manager CRDs into the cluster, comment out if doing manual install of cert-manager
+# Install cert-manager CRDs into the cluster
+## doing it here because helm install of the release depends on this in addons-terraform
 resource "null_resource" "install_cert_manager_crds" {
   provisioner "local-exec" {
     command = "kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml"
-    environment = {
-      KUBECONFIG = var.kube_config
-    }
-  }
-}
-
-# Install argo cd namespace
-resource "null_resource" "install_argo-cd-namespace" {
-  provisioner "local-exec" {
-    command = "kubectl create namespace argocd"
-    environment = {
-      KUBECONFIG = var.kube_config
-    }
-  }
-}
-
-# Install argo cd
-resource "null_resource" "install_argo-cd" {
-  provisioner "local-exec" {
-    command = "kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
     environment = {
       KUBECONFIG = var.kube_config
     }

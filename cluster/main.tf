@@ -63,7 +63,7 @@ resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
     # the default full list as mentioned here https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
     # admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds, LimitRanger, MutatingAdmissionWebhook, NamespaceLifecycle, PersistentVolumeClaimResize, PodSecurity, Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
     # Removed PodSecurity from the default list, cert-manager was not able to work with it. More investigation needed here.
-#    admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds,LimitRanger,MutatingAdmissionWebhook,NamespaceLifecycle,PersistentVolumeClaimResize,Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
+    admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds,LimitRanger,MutatingAdmissionWebhook,NamespaceLifecycle,PersistentVolumeClaimResize,Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
   }
 }
 
@@ -72,7 +72,7 @@ resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
   name                = "umer_cluster"
   cluster_template_id = openstack_containerinfra_clustertemplate_v1.umer_cluster_template.id
   master_count        = 1
-  node_count          = 2
+  node_count          = 3
   keypair             = openstack_compute_keypair_v2.kube_cluster_key.name
 }
 
