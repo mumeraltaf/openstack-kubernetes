@@ -7,6 +7,7 @@ A repo for showcasing a basic developer platform on an OpenStack Magnum Kubernet
 * Configure Persistent Storage Class for OpenStack
 * Setup [cert-manager](https://cert-manager.io/) for X.509 certificate management using Terraform
 * Setup internal [NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/) using Terraform, with auto provisioning cluster wide DNS hostname
+* Optional setup of a [Rook](https://rook.io/) Ceph storage cluster, see [rook-ceph.md](rook-ceph/rook-ceph.md)
 * [Argo CD](https://argo-cd.readthedocs.io/en/stable/) (continuous delivery) for the cluster (see `/argo-cd/argo/commands.sh` for installation instructions)
 * Deploy an example app with valid SSL certificate using Terraform
 
