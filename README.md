@@ -61,7 +61,7 @@ After this complete a Volume will be provisioned and be available to be used by 
 
 # Setup Cluster Addons
 Now that we have a working cluster setup, we can install and configure some essential cluster addons. Following addons will be installed:
-* [NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/), will be default Ingress Controller for our cluster, a DNS hostname for whole cluster will be provisioned from OpenStack using `designate` API, configure this in [variables.tf](./cert-manager-terraform/variables.tf)
+* [NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/), will be default Ingress Controller for our cluster, a DNS hostname for whole cluster will be provisioned from OpenStack using `designate` API, configure this in [variables.tf](addons-terraform/variables.tf)
 * [cert-manager](https://cert-manager.io/docs/), will automatically manage X.509 certificates in our cluster.
 * [Argo CD](https://argo-cd.readthedocs.io/en/stable/), will be setup to enable continuous deployment of user workloads
 
@@ -75,7 +75,7 @@ There are multiple ways to install packages into our cluster here are few option
 ### Use Kubernetes and Helm Terraform providers to setup addons
 
 ```shell
-cd cert-manager-terraform
+cd addons-terraform
 terraform init
 terraform apply
 ```

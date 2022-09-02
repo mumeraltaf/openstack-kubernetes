@@ -1,8 +1,0 @@
-webhook:
-  hostNetwork: true
-  securePort: 10666
-installCRDs: false
-global:
-  podSecurityPolicy:
-    enabled: true
-    useAppArmor: false
