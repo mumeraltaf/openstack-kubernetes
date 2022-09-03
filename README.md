@@ -8,6 +8,7 @@ A repo for showcasing a basic developer platform on an OpenStack Magnum Kubernet
 * Setup [cert-manager](https://cert-manager.io/) for X.509 certificate management using Terraform
 * Setup internal [NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/) using Terraform, with auto provisioning cluster wide DNS hostname
 * Optional setup of a [Rook](https://rook.io/) Ceph storage cluster, see [rook-ceph.md](rook-ceph/rook-ceph.md)
+* [Actions Runner Controller (ARC)](https://github.com/actions-runner-controller/actions-runner-controller) for self-hosted GitHub workflow runners, providing an internal CI and code build platform
 * [Argo CD](https://argo-cd.readthedocs.io/en/stable/) (continuous delivery) for the cluster (see `/argo-cd/argo/commands.sh` for installation instructions)
 * Deploy an example app with valid SSL certificate using Terraform
 
@@ -72,7 +73,7 @@ There are multiple ways to install packages into our cluster here are few option
 * Use Kubernetes and Helm Terraform providers to setup packages
 
 
-### Use Kubernetes and Helm Terraform providers to setup addons
+### Use Kubernetes + Helm Terraform providers to setup addons
 
 ```shell
 cd addons-terraform
@@ -81,7 +82,7 @@ terraform apply
 ```
 
 ### (Optional) Manually setup cert-man using yaml manifests
-See [Manually configure cert-man](./cert-manager-manual/Manual-cert-manager.md)
+See [Manually configure cert-man](./scratch/cert-manager-manual/Manual-cert-manager.md)
 
 
 # Deploying workloads (applications) to the cluster

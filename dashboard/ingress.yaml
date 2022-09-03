@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: kubernetes-dashboard
+  name: dashboard
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-issuer"
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/configuration-snippet: |-
+      proxy_ssl_server_name on;
+      proxy_ssl_name $host;
+
+spec:
+  tls:
+    - hosts:
+        - dashboard2.kcluster4.aurin-prod.cloud.edu.au
+      secretName: dashboard-tls
+  rules:
+    - host: dashboard2.kcluster4.aurin-prod.cloud.edu.au
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 443
