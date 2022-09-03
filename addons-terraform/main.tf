@@ -165,6 +165,7 @@ resource "helm_release" "actions-runner" {
   chart            = "actions-runner-controller"
 }
 
+
 # Create self-hosted-runners namespace
 resource "kubernetes_namespace" "self-hosted-runners-namespace" {
   metadata {
