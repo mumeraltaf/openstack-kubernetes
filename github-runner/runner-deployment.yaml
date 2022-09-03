@@ -2,15 +2,33 @@ apiVersion: actions.summerwind.dev/v1alpha1
 kind: RunnerDeployment
 metadata:
   name: runner-deployment
+  namespace: self-hosted-runners
 spec:
   template:
     spec:
       repository: mumeraltaf/quarkus-startmeup
+      env:
+        - name: REGISTRY
+          valueFrom:
+            secretKeyRef:
+              key: REGISTRY
+              name: container-repository
+        - name: REGISTRY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: REGISTRY_USERNAME
+              name: container-repository
+        - name: REGISTRY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: REGISTRY_PASSWORD
+              name: container-repository
 ---
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler
 metadata:
   name: runner-deployment-autoscaler
+  namespace: self-hosted-runners
 spec:
   scaleTargetRef:
     name: runner-deployment

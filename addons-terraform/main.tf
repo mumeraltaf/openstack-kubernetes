@@ -71,7 +71,7 @@ data "kubernetes_service_v1" "load_balancer_nginx" {
 resource "openstack_dns_recordset_v2" "domain" {
   depends_on = [helm_release.nginx-ingress, data.kubernetes_service_v1.load_balancer_nginx]
   name    = format("%s%s%s","*.",var.cluster_url,".")
-  zone_id = "92b7daf1-6669-41e9-8d80-14f6cf644703"
+  zone_id = var.dns_zone_id
   ttl = 30
   type = "A"
   records = [data.kubernetes_service_v1.load_balancer_nginx.status.0.load_balancer.0.ingress.0.ip]
@@ -118,13 +118,7 @@ resource "kubernetes_namespace" "actions-runner-system-namespace" {
   }
 }
 
-#kubectl create secret generic controller-manager \
-#-n actions-runner-system \
-#--from-literal=github_app_id=${APP_ID} \
-#--from-literal=github_app_installation_id=${INSTALLATION_ID} \
-#--from-file=github_app_private_key=${PRIVATE_KEY_FILE_PATH}
-
-# Create actions-runner-system namespace
+# Create github app secret
 resource "kubernetes_secret_v1" "actions-runner-controller-manager-secret" {
   depends_on = [kubernetes_namespace.actions-runner-system-namespace]
   metadata {
@@ -132,9 +126,9 @@ resource "kubernetes_secret_v1" "actions-runner-controller-manager-secret" {
     namespace = "actions-runner-system"
   }
   data = {
-    "github_app_id" = "234370"
-    "github_app_installation_id" = "28836203"
-    "github_app_private_key" = file("/Users/maalt/Desktop/k8_secrets/kube-runner-umer-cluser.2022-09-02.private-key.pem")
+    "github_app_id" = var.github_app_id
+    "github_app_installation_id" = var.github_app_installation_id
+    "github_app_private_key" = file(var.github_app_private_key_path)
   }
 
 }
@@ -169,4 +163,26 @@ resource "helm_release" "actions-runner" {
   wait             = true
   repository       = "https://actions-runner-controller.github.io/actions-runner-controller"
   chart            = "actions-runner-controller"
+}
+
+# Create self-hosted-runners namespace
+resource "kubernetes_namespace" "self-hosted-runners-namespace" {
+  metadata {
+    name = "self-hosted-runners"
+  }
+}
+
+# Create self-hosted-runners secret
+resource "kubernetes_secret_v1" "container-repository-secret" {
+  depends_on = [kubernetes_namespace.self-hosted-runners-namespace]
+  metadata {
+    name = "container-repository"
+    namespace = "self-hosted-runners"
+  }
+  data = {
+    "REGISTRY_USERNAME" = var.registry_username
+    "REGISTRY_PASSWORD" = var.registry_password
+    "REGISTRY" = var.container_registry
+  }
+
 }
