@@ -1,12 +1,17 @@
 variable "kube_config" {
   type        = string
   description = "Path to Kubernetes Cluster Config file"
-  default = "/Users/maalt/work/playpen/openstack-kubernetes/cluster/secret/config"
+  default = "/Users/maalt/work/playpen/terraform-openstack-rke2/examples/cloud-controller-manager/rke2.yaml"
 }
 
 variable "dns_zone_id" {
   type        = string
   description = "DNS Zone ID allocated in OpenStack"
+}
+
+variable "cluster_ip" {
+  type        = string
+  description = "Cluster IP"
 }
 
 variable "cluster_url" {

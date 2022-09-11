@@ -25,23 +25,6 @@ provider "helm" {
   }
 }
 
-##############################
-
-# Install nginx-ingress-controller
-resource "helm_release" "nginx-ingress" {
-  name       = "nginx-ingress-controller"
-
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "nginx-ingress-controller"
-
-  set {
-    name  = "externalTrafficPolicy"
-    value = "Cluster"
-  }
-  version = "9.3.0"
-}
-
-
 # Create cert-manager namespace
 resource "kubernetes_namespace" "cm" {
   metadata {
@@ -61,20 +44,12 @@ resource "helm_release" "cert-manager" {
   values = [file("cert-manager-values.yaml")]
 }
 
-data "kubernetes_service_v1" "load_balancer_nginx" {
-  depends_on = [helm_release.nginx-ingress]
-  metadata {
-    name = "nginx-ingress-controller"
-  }
-}
-
 resource "openstack_dns_recordset_v2" "domain" {
-  depends_on = [helm_release.nginx-ingress, data.kubernetes_service_v1.load_balancer_nginx]
   name    = format("%s%s%s","*.",var.cluster_url,".")
   zone_id = var.dns_zone_id
   ttl = 30
   type = "A"
-  records = [data.kubernetes_service_v1.load_balancer_nginx.status.0.load_balancer.0.ingress.0.ip]
+  records = [var.cluster_ip]
 }
 
 

@@ -1,83 +1,84 @@
-# Setup the OpenStack provider
-terraform {
-  required_version = ">= 0.14.0"
-  required_providers {
-    openstack = {
-      source  = "terraform-provider-openstack/openstack"
-      version = "~> 1.48.0"
-    }
+locals {
+  identity_service = [for entry in data.openstack_identity_auth_scope_v3.scope.service_catalog :
+  entry if entry.type == "identity"][0]
+  identity_endpoint = [for endpoint in local.identity_service.endpoints :
+  endpoint if(endpoint.interface == "public" && endpoint.region == openstack_identity_application_credential_v3.rke2_csi.region)][0]
+
+  os_cinder_b64 = base64gzip(templatefile("${path.root}/os_cinder.yaml.tpl", {
+    auth_url   = local.identity_endpoint.url
+    region     = local.identity_endpoint.region
+    project_id = openstack_identity_application_credential_v3.rke2_csi.project_id
+    app_id     = openstack_identity_application_credential_v3.rke2_csi.id
+    app_secret = openstack_identity_application_credential_v3.rke2_csi.secret
+  }))
+
+  os_ccm_b64 = base64gzip(templatefile("${path.root}/os_ccm.yaml.tpl", {
+    auth_url            = local.identity_endpoint.url
+    region              = local.identity_endpoint.region
+    project_id          = openstack_identity_application_credential_v3.rke2_csi.project_id
+    app_id              = openstack_identity_application_credential_v3.rke2_csi.id
+    app_secret          = openstack_identity_application_credential_v3.rke2_csi.secret
+    floating_network_id = data.openstack_networking_subnet_v2.public_subnet.network_id
+    floating_subnet_id  = data.openstack_networking_subnet_v2.public_subnet.id
+    subnet_id           = module.controlplane.subnet_id
+  }))
+}
+
+data "openstack_identity_auth_scope_v3" "scope" {
+  name = "auth_scope"
+}
+
+data "openstack_networking_subnet_v2" "nodes_subnet" {
+  subnet_id = module.controlplane.subnet_id
+}
+
+data "openstack_networking_subnet_v2" "public_subnet" {
+  # You MUST update this to match your cloud
+  # do: `openstack subnet list`
+  name = "melbourne-qh2-uom"
+}
+
+resource "openstack_identity_application_credential_v3" "rke2_csi" {
+  name = "${var.cluster_name}-csi-credentials"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "nodeport" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 30000
+  port_range_max    = 32768
+  remote_ip_prefix  = data.openstack_networking_subnet_v2.nodes_subnet.cidr
+  security_group_id = module.controlplane.node_config.secgroup_id
+}
+
+module "controlplane" {
+  source           = "remche/rke2/openstack"
+  cluster_name     = var.cluster_name
+  write_kubeconfig = true
+  image_name       = "NeCTAR Ubuntu 22.04 LTS (Jammy) amd64"
+  flavor_name      = "m3.large"
+  public_net_name  = "melbourne"
+  nodes_net_cidr  = "10.0.0.0/24"
+  dns_servers = ["8.8.8.8", "8.8.4.4"]
+#  dns_domain = "os-ccm.aurin-prod.cloud.edu.au."
+  ssh_key_file     = "/Users/maalt/Desktop/adp-deploy-secrets/nectar/adp-terraform-key"
+#  manifests_path   = "./manifests"
+  availability_zones = ["melbourne-qh2"]
+  use_ssh_agent    = false
+  nodes_count      = 1
+  rke2_config      = file("rke2_config.yaml")
+  manifests_gzb64 = {
+    "cinder-csi-plugin" : local.os_cinder_b64
+    "openstack-controller-manager" : local.os_ccm_b64
   }
 }
 
-# Create the key pair for the entire cluster on OpenStack
-resource "openstack_compute_keypair_v2" "kube_cluster_key" {
-  name       = "kube_cluster_key"
-  public_key = file(format("%s%s.pub", var.secrets_directory, var.ssh_key_file))
-}
-
-# Create a custom Cluster Template for our Kubernetes Cluster
-resource "openstack_containerinfra_clustertemplate_v1" "umer_cluster_template" {
-  cluster_distro        = "fedora-coreos"
-  coe                   = "kubernetes"
-  dns_nameserver        = "8.8.8.8"
-  docker_storage_driver = "overlay2"
-  docker_volume_size    = 100
-  external_network_id   = "melbourne"
-  flavor                = "c3.xxlarge"
-  floating_ip_enabled   = true
-  image                 = "fedora-coreos-35"
-  master_flavor         = "m3.medium"
-  master_lb_enabled     = true
-  name                  = "umer_cluster_template"
-  network_driver        = "flannel"
-  no_proxy              = ""
-  region                = "Melbourne"
-  registry_enabled      = false
-  server_type           = "vm"
-  tls_disabled          = false
-  volume_driver         = "cinder"
-
-  labels = {
-    autoscaler_tag                = "v1.23.0"
-    availability_zone             = "melbourne-qh2"
-    cinder_csi_enabled            = "true"
-    cinder_csi_plugin_tag         = "v1.23.4"
-    cloud_provider_tag            = "v1.23.4"
-    container_infra_prefix        = "registry.rc.nectar.org.au/nectarmagnum/"
-    container_runtime             = "containerd"
-    containerd_tarball_sha256     = "a64568c8ce792dd73859ce5f336d5485fcbceab15dc3e06d5d1bc1c3353fa20f"
-    containerd_version            = "1.6.6"
-    coredns_tag                   = "1.9.3"
-    csi_attacher_tag              = "v3.3.0"
-    csi_node_driver_registrar_tag = "v2.4.0"
-    csi_provisioner_tag           = "v3.0.0"
-    csi_resizer_tag               = "v1.3.0"
-    csi_snapshotter_tag           = "v4.2.1"
-    docker_volume_type            = "standard"
-    flannel_tag                   = "v0.18.1"
-    ingress_controller            = "octavia"
-    k8s_keystone_auth_tag         = "v1.23.4"
-    kube_tag                      = "v1.23.8"
-    master_lb_floating_ip_enabled = "true"
-    influx_grafana_dashboard_enabled = "false"
-    # the default full list as mentioned here https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/
-    # admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds, LimitRanger, MutatingAdmissionWebhook, NamespaceLifecycle, PersistentVolumeClaimResize, PodSecurity, Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
-    # Removed PodSecurity from the default list, cert-manager was not able to work with it. More investigation needed here.
-    admission_control_list = "CertificateApproval,CertificateSigning,CertificateSubjectRestriction,DefaultIngressClass,DefaultStorageClass,DefaultTolerationSeconds,LimitRanger,MutatingAdmissionWebhook,NamespaceLifecycle,PersistentVolumeClaimResize,Priority,ResourceQuota,RuntimeClass,ServiceAccount,StorageObjectInUseProtection,TaintNodesByCondition,ValidatingAdmissionWebhook"
-  }
-}
-
-# Create the Kubernetes Cluster
-resource "openstack_containerinfra_cluster_v1" "umer_cluster" {
-  name                = "umer_cluster"
-  cluster_template_id = openstack_containerinfra_clustertemplate_v1.umer_cluster_template.id
-  master_count        = 1
-  node_count          = 3
-  keypair             = openstack_compute_keypair_v2.kube_cluster_key.name
-}
-
-# Export and save the KUBECONFIG file at the specified location
-resource "local_sensitive_file" "config" {
-  content  = tostring(openstack_containerinfra_cluster_v1.umer_cluster.kubeconfig.raw_config)
-  filename = "${path.module}/secret/config"
+module "worker" {
+  source      = "remche/rke2/openstack//modules/agent"
+  image_name  = "NeCTAR Ubuntu 22.04 LTS (Jammy) amd64"
+  nodes_count = 2
+  name_prefix = "worker"
+  flavor_name = "m3.large"
+  node_config = module.controlplane.node_config
 }

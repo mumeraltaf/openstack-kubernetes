@@ -1,0 +1,4 @@
+disable-cloud-controller: True
+## Control plane wont execute regular workloads
+#node-taint:
+#  - "CriticalAddonsOnly=true:NoExecute"
