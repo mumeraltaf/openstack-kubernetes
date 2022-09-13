@@ -44,15 +44,6 @@ resource "helm_release" "cert-manager" {
   values = [file("cert-manager-values.yaml")]
 }
 
-resource "openstack_dns_recordset_v2" "domain" {
-  name    = format("%s%s%s","*.",var.cluster_url,".")
-  zone_id = var.dns_zone_id
-  ttl = 30
-  type = "A"
-  records = [var.cluster_ip]
-}
-
-
 # Create the letsencrypt cluster issuer
 resource "kubernetes_manifest" "letsencrypt-issuer" {
   depends_on = [helm_release.cert-manager]

@@ -4,21 +4,6 @@ variable "kube_config" {
   default = "/Users/maalt/work/playpen/openstack-kubernetes/cluster/rke2.yaml"
 }
 
-variable "dns_zone_id" {
-  type        = string
-  description = "DNS Zone ID allocated in OpenStack"
-}
-
-variable "cluster_ip" {
-  type        = string
-  description = "Cluster IP"
-}
-
-variable "cluster_url" {
-  type        = string
-  description = "Base Hostname that is part of the assigned zone"
-}
-
 variable "github_app_id" {
   type        = string
   description = "GitHub App Id for the github runner"

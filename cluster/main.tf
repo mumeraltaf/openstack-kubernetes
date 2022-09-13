@@ -86,3 +86,13 @@ module "worker" {
   flavor_name = "m3.large"
   node_config = module.controlplane.node_config
 }
+
+resource "openstack_dns_recordset_v2" "domain" {
+  depends_on = [module.controlplane]
+  name    = format("*.%s.%s.",var.cluster_name,var.dns_base_url)
+  zone_id = var.dns_zone_id
+  ttl = 30
+  type = "A"
+  records = [module.controlplane.floating_ip.0]
+}
+

@@ -34,7 +34,7 @@ See [https://docs.openstack.org/magnum/latest/user/#clustertemplate](https://doc
 ```shell
 cd cluster
 terraform init
-terraform apply
+terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/secrets.tfvars"
 ```
 Wait for 5-15 minutes for cluster to be deployed
 
@@ -78,7 +78,7 @@ There are multiple ways to install packages into our cluster here are few option
 ```shell
 cd addons-terraform
 terraform init
-terraform apply
+terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/secrets.tfvars"
 ```
 
 ### (Optional) Manually setup cert-man using yaml manifests
