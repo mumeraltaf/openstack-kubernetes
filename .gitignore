@@ -13,3 +13,5 @@ cluster/secret
 
 .DS_Store
 /.idea/
+
+cluster/rke2.yaml

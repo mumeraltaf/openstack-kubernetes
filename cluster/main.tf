@@ -64,6 +64,8 @@ module "controlplane" {
 #  dns_domain = "os-ccm.aurin-prod.cloud.edu.au."
   ssh_key_file     = "/Users/maalt/Desktop/adp-deploy-secrets/nectar/adp-terraform-key"
 #  manifests_path   = "./manifests"
+  boot_from_volume = true
+  boot_volume_size = 100
   availability_zones = ["melbourne-qh2"]
   use_ssh_agent    = false
   nodes_count      = 1
@@ -78,6 +80,8 @@ module "worker" {
   source      = "remche/rke2/openstack//modules/agent"
   image_name  = "NeCTAR Ubuntu 22.04 LTS (Jammy) amd64"
   nodes_count = 2
+  boot_from_volume = true
+  boot_volume_size = 100
   name_prefix = "worker"
   flavor_name = "m3.large"
   node_config = module.controlplane.node_config

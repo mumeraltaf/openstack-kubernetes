@@ -1,7 +1,7 @@
 variable "kube_config" {
   type        = string
   description = "Path to Kubernetes Cluster Config file"
-  default = "/Users/maalt/work/playpen/terraform-openstack-rke2/examples/cloud-controller-manager/rke2.yaml"
+  default = "/Users/maalt/work/playpen/openstack-kubernetes/cluster/rke2.yaml"
 }
 
 variable "dns_zone_id" {
