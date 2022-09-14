@@ -18,8 +18,7 @@ locals {
     project_id          = openstack_identity_application_credential_v3.rke2_csi.project_id
     app_id              = openstack_identity_application_credential_v3.rke2_csi.id
     app_secret          = openstack_identity_application_credential_v3.rke2_csi.secret
-    floating_network_id = data.openstack_networking_subnet_v2.public_subnet.network_id
-    floating_subnet_id  = data.openstack_networking_subnet_v2.public_subnet.id
+    floating_network_id = data.openstack_networking_network_v2.public_network.id
     subnet_id           = module.controlplane.subnet_id
   }))
 }
@@ -32,10 +31,10 @@ data "openstack_networking_subnet_v2" "nodes_subnet" {
   subnet_id = module.controlplane.subnet_id
 }
 
-data "openstack_networking_subnet_v2" "public_subnet" {
+data "openstack_networking_network_v2" "public_network" {
   # You MUST update this to match your cloud
   # do: `openstack subnet list`
-  name = "melbourne-qh2-uom"
+  name = "melbourne"
 }
 
 resource "openstack_identity_application_credential_v3" "rke2_csi" {

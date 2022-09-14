@@ -19,5 +19,4 @@ spec:
         tenant-id: ${project_id}
       loadBalancer:
         floating-network-id: ${floating_network_id}
-        floating-subnet-id: ${floating_subnet_id}
         subnet-id: ${subnet_id}
