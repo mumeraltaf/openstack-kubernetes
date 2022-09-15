@@ -1,4 +1,4 @@
-# RKE2 OpenStack Kubernetes based Developer Platform
+# RKE2 based Developer Platform on OpenStack provisioned using Terraform
 
 A repo for showcasing a basic developer platform on an RKE2 based Kubernetes Cluster on OpenStack, provisioned through [Terraform](https://www.terraform.io/).
 
