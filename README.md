@@ -58,7 +58,7 @@ cd cluster/configure
 terraform init
 terraform apply
 ```
-After this complete a Volume will be provisioned and be available to be used by Kubernetes cluster.
+After this complete a StorageClass named `default` will be setup and be available to be used by Kubernetes cluster.
 
 # Setup Cluster Addons
 Now that we have a working cluster setup, we can install and configure some essential cluster addons. Following addons will be installed:
