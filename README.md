@@ -1,9 +1,14 @@
-# OpenStack Kubernetes based Developer Platform
+# RKE2 OpenStack Kubernetes based Developer Platform
 
-A repo for showcasing a basic developer platform on an OpenStack Magnum Kubernetes Cluster, provisioned through [Terraform](https://www.terraform.io/).
+A repo for showcasing a basic developer platform on an RKE2 based Kubernetes Cluster on OpenStack, provisioned through [Terraform](https://www.terraform.io/).
+
+The cluster is provisioned using following Terraform modules:
+[terraform-openstack-rke2](https://github.com/remche/terraform-openstack-rke2)
 
 ## Current Features:
-* Provision using Terraform from a custom Magnum Cluster Template
+* Provision RKE2 Cluster on OpenStack using Terraform
+* Install and configure [OpenStack Cloud Controller Manager](https://github.com/kubernetes/cloud-provider-openstack)
+* Install and configure [Cinder CSI Plugin](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/cinder-csi-plugin/using-cinder-csi-plugin.md)
 * Configure Persistent Storage Class for OpenStack
 * Setup [cert-manager](https://cert-manager.io/) for X.509 certificate management using Terraform
 * Setup internal [NGINX Ingress Controller](https://docs.nginx.com/nginx-ingress-controller/) using Terraform, with auto provisioning cluster wide DNS hostname
@@ -13,23 +18,25 @@ A repo for showcasing a basic developer platform on an OpenStack Magnum Kubernet
 * Deploy an example app with valid SSL certificate using Terraform
 
 ## Prerequisites:
-* Have appropriate OpenStack allocation (Clusters / Networks / FloatingIPs etc.), you can configure the resources used for cluster in the Cluster Template definition, here: [main.tf](./cluster/main.tf)
+* Have appropriate OpenStack allocation ( Networks / FloatingIPs etc.), you can configure the resources used for cluster in the Cluster Template definition, here: [main.tf](./cluster/main.tf)
   * The supplied config needs following main resources:
-    * 1 Cluster
     * 1 Network
     * 1 Router
-    * 2 Floating IPs (one for cluster's main load-balancer, and one for NGINX Ingress Controller)
+    * 1 Floating IP
     * Appropriate compute and storage allocations as defined in the cluster template
 * Be authenticated with OpenStack using Application/Personal credentials file
 * Install [`Terraform`](https://www.terraform.io/)
 * Install [`kubectl`](https://kubernetes.io/docs/tasks/tools/) (this may already be installed if you have Docker Desktop installed), I have an alias for it shortened to `k`
 * Setup `secrets` directory with an already created/configured `ssh` key (password less), set or pass its path to `/cluster/variables.tf` file
 
-# Magnum Cluster
+# RKE2 Cluster
 
-The main terraform module creates a custom Magnum ClusterTemplate which is supported by the provider and configured to work with upcoming use-cases.
-See [https://docs.openstack.org/magnum/latest/user/#clustertemplate](https://docs.openstack.org/magnum/latest/user/#clustertemplate) for details of all parameters and labels.
+The main terraform module creates a RKE2 Cluster using follwoing Terraform Module: [terraform-openstack-rke2](https://github.com/remche/terraform-openstack-rke2).
 
+To make it work well in OpenStack we install following plugins and controller.
+
+* [OpenStack Cloud Controller Manager](https://github.com/kubernetes/cloud-provider-openstack): This will allow us to provision LoadBalancers on OpenStack directly from Kubernetes Services
+* [Cinder CSI Plugin](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/cinder-csi-plugin/using-cinder-csi-plugin.md): This will enable the cluster to use Cinder Storage 
 ## Create a Kubernetes cluster
 ```shell
 cd cluster
