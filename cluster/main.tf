@@ -73,6 +73,8 @@ module "controlplane" {
     "cinder-csi-plugin" : local.os_cinder_b64
     "openstack-controller-manager" : local.os_ccm_b64
   }
+  rke2_version = "v1.25.0+rke2r1"
+  do_upgrade = true
 }
 
 module "worker" {
@@ -84,6 +86,8 @@ module "worker" {
   name_prefix = "worker"
   flavor_name = "m3.large"
   node_config = module.controlplane.node_config
+  rke2_version = "v1.25.0+rke2r1"
+  do_upgrade = true
 }
 
 resource "openstack_dns_recordset_v2" "domain" {
