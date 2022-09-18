@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: startmeup
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mumeraltaf/quarkus-startmeup.git
+    targetRevision: HEAD
+    path: deployment/kubernetes/startmeup
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: startmeup
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-issuer
+spec:
+  acme:
+    email: umer.altaf@unimelb.edu.au
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-cluster-issuer-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
