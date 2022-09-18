@@ -61,11 +61,30 @@ After the cluster is created we will need to configure it for our use cases like
 
 To configure cluster, check/update the path to `kubeconfig` in the `./cluster/provision/variables.tf` file. Then:
 ```shell
-cd cluster/configure
+cd cluster/flux-bootstrap
 terraform init
-terraform apply
+terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/fluxSecrets.tfvars" 
 ```
 After this complete a StorageClass named `default` will be setup and be available to be used by Kubernetes cluster.
+
+
+
+To init cluster, check/update the path to `kubeconfig` in the `./cluster/provision/variables.tf` file. Then:
+```shell
+cd cluster/flux-bootstrap/configure
+terraform init
+terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/fluxSecrets.tfvars" 
+```
+
+
+To init cluster, check/update the path to `kubeconfig` in the `./cluster/provision/variables.tf` file. Then:
+```shell
+cd cluster/flux-bootstrap/configure/init-platform
+terraform init
+terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/fluxSecrets.tfvars" 
+```
+
+
 
 # Setup Cluster Addons
 Now that we have a working cluster setup, we can install and configure some essential cluster addons. Following addons will be installed:
