@@ -1,8 +1,0 @@
-dns_zone_id = "********-****-***-****-14f6cf644703"
-cluster_url = "kcluster4.xyz.cloud.edu.au"
-github_app_id = "12345"
-github_app_installation_id = "12345"
-github_app_private_key_path = "/xyz.pem"
-container_registry = "docker.io"
-registry_username = "**********"
-registry_password = "**********"

@@ -1,9 +1,3 @@
-variable "kube_config" {
-  type        = string
-  description = "Path to Kubernetes Cluster Config file"
-  default = "/Users/maalt/work/playpen/openstack-kubernetes/cluster/rke2.yaml"
-}
-
 variable "github_app_id" {
   type        = string
   description = "GitHub App Id for the github runner"
@@ -32,4 +26,32 @@ variable "registry_username" {
 variable "registry_password" {
   type        = string
   description = "Password for the container registry"
+}
+
+
+variable "github_owner" {
+  type        = string
+  description = "github owner"
+}
+
+variable "github_token" {
+  type        = string
+  description = "github token"
+}
+
+variable "repository_name" {
+  type        = string
+  default     = "os-ccm-flux"
+  description = "github repository name"
+}
+variable "branch" {
+  type        = string
+  default     = "main"
+  description = "branch name"
+}
+
+variable "target_path" {
+  type        = string
+  default     = "dev-cluster"
+  description = "flux sync target path"
 }

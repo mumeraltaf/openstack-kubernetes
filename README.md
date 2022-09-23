@@ -7,6 +7,7 @@ The cluster is provisioned using following Terraform modules:
 
 ## Current Features:
 * Provision RKE2 Cluster on OpenStack using Terraform
+* Setup a GitOps enabled fleet GitHub repository for all cluster configurations
 * Install and configure [OpenStack Cloud Controller Manager](https://github.com/kubernetes/cloud-provider-openstack)
 * Install and configure [Cinder CSI Plugin](https://github.com/kubernetes/cloud-provider-openstack/blob/master/docs/cinder-csi-plugin/using-cinder-csi-plugin.md)
 * Configure Persistent Storage Class for OpenStack

@@ -1,33 +1,19 @@
-# Setup all required providers
 terraform {
+  required_version = ">= 1.3.0"
+
   required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.12.1"
-    }
     github = {
-      source  = "integrations/github"
-      version = ">= 4.5.2"
+      source = "integrations/github"
     }
   }
-
 }
-provider "kubernetes" {
-  config_path = var.kube_config
-}
-
-provider "github" {
-  owner = var.github_owner
-  token = var.github_token
-}
-
 
 
 resource "github_repository_file" "cluster_issuer_lets_encrypt" {
   repository          = var.repository_name
   branch              = var.branch
   file                = format("%s%s",var.target_path,"/platform-files/platform/cert-manager/lets-encrypt-issuer.yaml")
-  content             = file("../platform-files/platform/cert-manager/lets-encrypt-issuer.yaml")
+  content             = file("${path.module}/../platform-files/platform/cert-manager/lets-encrypt-issuer.yaml")
 }
 
 
@@ -81,12 +67,12 @@ resource "github_repository_file" "github_runner" {
   repository          = var.repository_name
   branch              = var.branch
   file                = format("%s%s",var.target_path,"/platform-files/workloads/github-runners/startmeup-runner.yaml")
-  content             = file("../platform-files/workloads/github-runners/startmeup-runner.yaml")
+  content             = file("${path.module}/../platform-files/workloads/github-runners/startmeup-runner.yaml")
 }
 
 resource "github_repository_file" "argo_workload_startmeup" {
   repository          = var.repository_name
   branch              = var.branch
   file                = format("%s%s",var.target_path,"/platform-files/workloads/argo-cd/startmeup/startmeup.yaml")
-  content             = file("../platform-files/workloads/argo-cd/startmeup/startmeup.yaml")
+  content             = file("${path.module}/../platform-files/workloads/argo-cd/startmeup/startmeup.yaml")
 }
