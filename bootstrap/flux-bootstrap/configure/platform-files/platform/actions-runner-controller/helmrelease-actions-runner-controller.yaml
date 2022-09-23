@@ -14,5 +14,5 @@ spec:
         name: actions-runner-controller
   install:
     createNamespace: true
-  interval: 10m0s
+  interval: 5m0s
   targetNamespace: actions-runner-system

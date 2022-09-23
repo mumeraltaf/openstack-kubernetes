@@ -42,7 +42,7 @@ module "flux-bootstrap" {
 
 resource "time_sleep" "wait_for_flux_bootstrap_first_sync" {
   depends_on = [module.flux-bootstrap]
-  create_duration = "2m"
+  create_duration = "1m"
 }
 
 module "configure" {
@@ -60,11 +60,11 @@ module "configure" {
 
 resource "time_sleep" "wait_for_configure" {
   depends_on = [module.configure]
-  create_duration = "2m"
+  create_duration = "3m"
 }
 
 module "init_platform" {
-  depends_on = [time_sleep.wait_for_flux_bootstrap_first_sync]
+  depends_on = [time_sleep.wait_for_configure]
   source = "./flux-bootstrap/configure/init-platform"
   github_owner = var.github_owner
   github_token = var.github_token

@@ -15,7 +15,7 @@ spec:
       version: v1.9.1
   install:
     createNamespace: true
-  interval: 10m0s
+  interval: 5m0s
   targetNamespace: cert-manager
   values:
     installCRDs: true

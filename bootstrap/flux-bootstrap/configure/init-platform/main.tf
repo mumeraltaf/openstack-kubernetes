@@ -17,16 +17,16 @@ resource "github_repository_file" "cluster_issuer_lets_encrypt" {
 }
 
 
-# Create self-hosted-runners namespace
-resource "kubernetes_namespace" "actions-runner-system" {
-  metadata {
-    name = "actions-runner-system"
-  }
-}
+## Create self-hosted-runners namespace
+#resource "kubernetes_namespace" "actions-runner-system" {
+#  metadata {
+#    name = "actions-runner-system"
+#  }
+#}
 
 # Create github app secret
 resource "kubernetes_secret_v1" "actions-runner-controller-manager-secret" {
-  depends_on = [kubernetes_namespace.actions-runner-system]
+#  depends_on = [kubernetes_namespace.actions-runner-system]
   metadata {
     name = "controller-manager"
     namespace = "actions-runner-system"
