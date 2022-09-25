@@ -17,31 +17,8 @@ resource "github_repository_file" "cluster_issuer_lets_encrypt" {
 }
 
 
-## Create self-hosted-runners namespace
-#resource "kubernetes_namespace" "actions-runner-system" {
-#  metadata {
-#    name = "actions-runner-system"
-#  }
-#}
-
-# Create github app secret
-resource "kubernetes_secret_v1" "actions-runner-controller-manager-secret" {
-#  depends_on = [kubernetes_namespace.actions-runner-system]
-  metadata {
-    name = "controller-manager"
-    namespace = "actions-runner-system"
-  }
-  data = {
-    "github_app_id" = var.github_app_id
-    "github_app_installation_id" = var.github_app_installation_id
-    "github_app_private_key" = file(var.github_app_private_key_path)
-  }
-
-}
-
 # Create self-hosted-runners namespace
 resource "kubernetes_namespace" "self-hosted-runners-namespace" {
-  depends_on = [kubernetes_secret_v1.actions-runner-controller-manager-secret]
   metadata {
     name = "self-hosted-runners"
   }

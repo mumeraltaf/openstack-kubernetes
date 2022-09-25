@@ -61,3 +61,26 @@ resource "github_repository_file" "arc_release" {
   file                = format("%s%s",var.target_path,"/platform-files/platform/actions-runner-controller/helmrelease-actions-runner-controller.yaml")
   content             = file("${path.module}/platform-files/platform/actions-runner-controller/helmrelease-actions-runner-controller.yaml")
 }
+
+
+# Create self-hosted-runners namespace
+resource "kubernetes_namespace" "actions-runner-system" {
+  metadata {
+    name = "actions-runner-system"
+  }
+}
+
+# Create github app secret
+resource "kubernetes_secret_v1" "actions-runner-controller-manager-secret" {
+    depends_on = [kubernetes_namespace.actions-runner-system]
+  metadata {
+    name = "controller-manager"
+    namespace = "actions-runner-system"
+  }
+  data = {
+    "github_app_id" = var.github_app_id
+    "github_app_installation_id" = var.github_app_installation_id
+    "github_app_private_key" = file(var.github_app_private_key_path)
+  }
+
+}

@@ -12,7 +12,5 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: actions-runner-controller
-  install:
-    createNamespace: true
   interval: 5m0s
   targetNamespace: actions-runner-system

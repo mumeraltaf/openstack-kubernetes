@@ -60,7 +60,7 @@ module "configure" {
 
 resource "time_sleep" "wait_for_configure" {
   depends_on = [module.configure]
-  create_duration = "3m"
+  create_duration = "2m"
 }
 
 module "init_platform" {
