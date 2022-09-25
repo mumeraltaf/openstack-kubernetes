@@ -75,3 +75,21 @@ module "init_platform" {
   registry_password = var.registry_password
   registry_username = var.registry_username
 }
+
+resource "time_sleep" "wait_for_init_platform" {
+  depends_on = [module.init_platform]
+  create_duration = "2m"
+}
+
+module "init_platform-2" {
+  depends_on = [time_sleep.wait_for_init_platform]
+  source = "./flux-bootstrap/configure/init-platform/init-platform-2"
+  github_owner = var.github_owner
+  github_token = var.github_token
+  github_app_id = var.github_app_id
+  github_app_installation_id = var.github_app_installation_id
+  github_app_private_key_path = var.github_app_private_key_path
+  container_registry = var.container_registry
+  registry_password = var.registry_password
+  registry_username = var.registry_username
+}

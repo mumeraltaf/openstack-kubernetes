@@ -47,21 +47,6 @@ resource "github_repository_file" "argocd_kustomization" {
   content             = file("${path.module}/platform-files/platform/argocd/kustomization.yaml")
 }
 
-resource "github_repository_file" "arc_repo" {
-  repository          = var.repository_name
-  branch              = var.branch
-  file                = format("%s%s",var.target_path,"/platform-files/platform/actions-runner-controller/helmrepo-actions-runner-controller.yaml")
-  content             = file("${path.module}/platform-files/platform/actions-runner-controller/helmrepo-actions-runner-controller.yaml")
-}
-
-resource "github_repository_file" "arc_release" {
-  depends_on = [github_repository_file.arc_repo]
-  repository          = var.repository_name
-  branch              = var.branch
-  file                = format("%s%s",var.target_path,"/platform-files/platform/actions-runner-controller/helmrelease-actions-runner-controller.yaml")
-  content             = file("${path.module}/platform-files/platform/actions-runner-controller/helmrelease-actions-runner-controller.yaml")
-}
-
 
 # Create self-hosted-runners namespace
 resource "kubernetes_namespace" "actions-runner-system" {
