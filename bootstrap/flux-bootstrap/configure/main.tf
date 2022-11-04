@@ -31,6 +31,21 @@ resource "github_repository_file" "cert_manager_helm_release" {
   content             = file("${path.module}/platform-files/platform/cert-manager/helmrelease-cert-manager.yaml")
 }
 
+resource "github_repository_file" "nginx_ingress_repo" {
+  repository          = var.repository_name
+  branch              = var.branch
+  file                = format("%s%s",var.target_path,"/platform-files/platform/nginx-ingress-controller/helmrepo-ingress-nginx.yaml")
+  content             = file("${path.module}/platform-files/platform/nginx-ingress-controller/helmrepo-ingress-nginx.yaml")
+}
+
+resource "github_repository_file" "nginx_ingress_helm_release" {
+  depends_on = [github_repository_file.nginx_ingress_repo]
+  repository          = var.repository_name
+  branch              = var.branch
+  file                = format("%s%s",var.target_path,"/platform-files/platform/nginx-ingress-controller/helmrelease-ingress-nginx.yaml")
+  content             = file("${path.module}/platform-files/platform/nginx-ingress-controller/helmrelease-ingress-nginx.yaml")
+}
+
 
 resource "github_repository_file" "argocd_ns" {
   repository          = var.repository_name

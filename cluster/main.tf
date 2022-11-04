@@ -88,7 +88,7 @@ module "controlplane" {
 module "worker" {
   source      = "remche/rke2/openstack//modules/agent"
   image_name  = "NeCTAR Ubuntu 22.04 LTS (Jammy) amd64"
-  nodes_count = 2
+  nodes_count = 3
   boot_from_volume = true
   boot_volume_size = 100
   name_prefix = "worker"
@@ -96,11 +96,11 @@ module "worker" {
   node_config = module.controlplane.node_config
 }
 
-resource "openstack_dns_recordset_v2" "domain" {
-  depends_on = [module.controlplane]
-  name    = format("*.%s.%s.",var.cluster_name,var.dns_base_url)
-  zone_id = var.dns_zone_id
-  ttl = 30
-  type = "A"
-  records = [module.controlplane.floating_ip.0]
-}
+#resource "openstack_dns_recordset_v2" "domain" {
+#  depends_on = [module.controlplane]
+#  name    = format("*.%s.%s.",var.cluster_name,var.dns_base_url)
+#  zone_id = var.dns_zone_id
+#  ttl = 30
+#  type = "A"
+#  records = [module.controlplane.floating_ip.0]
+#}

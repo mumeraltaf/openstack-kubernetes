@@ -93,3 +93,20 @@ module "init_platform-2" {
   registry_password = var.registry_password
   registry_username = var.registry_username
 }
+
+data "kubernetes_service_v1" "load_balancer_nginx" {
+  depends_on = [module.init_platform-2]
+  metadata {
+    name = "kube-system-ingress-nginx-controller"
+    namespace = "kube-system"
+  }
+}
+
+resource "openstack_dns_recordset_v2" "domain" {
+  depends_on = [data.kubernetes_service_v1.load_balancer_nginx]
+  name    = format("*.%s.%s.",var.cluster_name,var.dns_base_url)
+  zone_id = var.dns_zone_id
+  ttl = 30
+  type = "A"
+  records = [data.kubernetes_service_v1.load_balancer_nginx.status.0.load_balancer.0.ingress.0.ip]
+}

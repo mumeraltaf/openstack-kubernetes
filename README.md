@@ -42,7 +42,7 @@ To make it work well in OpenStack we install following plugins and controller.
 ```shell
 cd cluster
 terraform init
-terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/secrets.tfvars"
+terraform apply -var-file="/Users/maalt/Desktop/k8_secrets/fluxSecrets.tfvars"
 ```
 Wait for 5-15 minutes for cluster to be deployed
 
@@ -50,10 +50,10 @@ Wait for 5-15 minutes for cluster to be deployed
 
 After the cluster is provisioned the `kubeconfig` file will be saved at `./cluster/secret/config`. Load this config into env variable:
 ```shell
-export KUBECONFIG=<PATH_TO_REPO>/cluster/secret/config
+export KUBECONFIG=<PATH_TO_REPO>/cluster/rke2.yaml
 ```
 
-### Configure Cluster
+### Bootstrap Cluster
 
 After the cluster is created we will need to configure it for our use cases like:
 

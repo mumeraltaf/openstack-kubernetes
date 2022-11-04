@@ -1,4 +1,5 @@
 disable-cloud-controller: True
+disable: rke2-ingress-nginx
 ## Control plane wont execute regular workloads
 #node-taint:
 #  - "CriticalAddonsOnly=true:NoExecute"
